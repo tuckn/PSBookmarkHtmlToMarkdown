@@ -9,7 +9,7 @@ Browser bookmark (Netscape format) → Obsidian-ready Markdown converter with YA
 ## Usage (Script)
 
 ```powershell
-.\scripts\ConvertBookmarkHtmlToMarkdown.ps1 -Path .\assets\bookmarks.html -OutputDirectory .\out -Passthru
+.\scripts\ConvertBookmarkHtmlToMarkdown.ps1 -Path .\assets\bookmarks.html -OutputDirectory .\out -Passthru -CheckLinkStatus -SaveFavicon
 ```
 
 With config file:
@@ -28,7 +28,8 @@ Convert-BookmarkHtmlToMarkdown -Path .\assets\bookmarks.html -OutputDirectory .\
 ## Output
 
 - One Markdown file per bookmark, UTF-8 (no BOM), with frontmatter fields described in `specs/ConvertBookmarkHtmlToMarkdown.md`.
-- Favicons (when present) are decoded to PNG into an `icons` subfolder next to the Markdown.
+- Favicons (when present and `-SaveFavicon` is used) are decoded to PNG into an `icons` subfolder next to the Markdown.
+- Filenames are sanitized (emoji removed) and truncated to 100 characters before the extension; collisions add `_1`, `_2`, ...
 
 ## Testing
 

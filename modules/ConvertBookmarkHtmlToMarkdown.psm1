@@ -34,7 +34,11 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
 
         [string] $OutputDirectory,
 
-        [switch] $Passthru
+        [switch] $Passthru,
+
+        [switch] $CheckLinkStatus,
+
+        [switch] $SaveFavicon
     )
 
     # region helpers
@@ -81,11 +85,29 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
         param([string] $Url)
         try {
             $uri = [Uri]::new($Url)
-            return $uri.Host
+            $host = $uri.Host
         }
         catch {
             return ''
         }
+
+        if ([string]::IsNullOrWhiteSpace($host)) { return '' }
+        $labels = @($host.Split('.') | Where-Object { $_ -ne '' })
+        if ($labels.Count -lt 2) { return $host }
+
+        $jpSecondLevel = @('co','ne','or','go','ac','ed','ad','gr','lg')
+        $lastIndex = $labels.Count - 1
+        $secondIndex = $labels.Count - 2
+        $last = $labels[$lastIndex]
+        $second = $labels[$secondIndex]
+
+        if ($last -eq 'jp' -and $jpSecondLevel -contains $second -and $labels.Count -ge 3) {
+            $start = $labels.Count - 3
+            $end = $labels.Count - 1
+            return ($labels[$start..$end] -join '.')
+        }
+
+        return ($labels[$secondIndex..$lastIndex] -join '.')
     }
 
     function Get-LastPathSegment {
@@ -96,7 +118,7 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
             if ([string]::IsNullOrWhiteSpace($path)) { return '' }
             $trimmed = $path.TrimEnd('/')
             if ($trimmed.Length -eq 0) { return '' }
-            $segments = $trimmed.Split('/') | Where-Object { $_ -ne '' }
+            $segments = @($trimmed.Split('/') | Where-Object { $_ -ne '' })
             if ($segments.Count -eq 0) { return '' }
             return $segments[$segments.Count - 1]
         }
@@ -107,6 +129,8 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
         param([string] $Text)
         if ($null -eq $Text) { return '' }
         $clean = $Text -replace '[<>:"/\\|?*\r\n\t]', ''
+        # drop surrogate pairs (emoji etc.)
+        $clean = [regex]::Replace($clean, '[\uD800-\uDFFF]', '')
         $clean = $clean -replace '\s+', ' '
         $clean = $clean.Trim(' .')
         return $clean
@@ -131,8 +155,8 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
     function Truncate-BaseName {
         param([string] $BaseName)
         if ($null -eq $BaseName) { return '' }
-        if ($BaseName.Length -le 50) { return $BaseName }
-        return ($BaseName.Substring(0, 49) + '…')
+        if ($BaseName.Length -le 100) { return $BaseName }
+        return ($BaseName.Substring(0, 99) + '…')
     }
 
     function Ensure-Directory {
@@ -437,9 +461,15 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
 
         $noteId = [guid]::NewGuid().ToString().ToLowerInvariant()
 
-        $linkStatus = Test-LinkStatus -Url $bm.Url
+        $linkStatus = ''
+        if ($CheckLinkStatus.IsPresent) {
+            $linkStatus = Test-LinkStatus -Url $bm.Url
+        }
 
-        $faviconFile = Decode-Favicon -IconDataUrl $bm.Icon -IconsDirectory $iconsDir -Domain $domain -LastPath $lastPath
+        $faviconFile = ''
+        if ($SaveFavicon.IsPresent) {
+            $faviconFile = Decode-Favicon -IconDataUrl $bm.Icon -IconsDirectory $iconsDir -Domain $domain -LastPath $lastPath
+        }
         $faviconRel = if ([string]::IsNullOrWhiteSpace($faviconFile)) { '' } else { ("icons/{0}" -f $faviconFile) }
 
         $keywords = $bm.Keywords

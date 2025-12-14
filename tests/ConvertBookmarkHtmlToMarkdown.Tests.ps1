@@ -39,7 +39,7 @@ Describe 'Convert-BookmarkHtmlToMarkdown' {
     }
 
     It 'creates markdown and favicon files with expected frontmatter' {
-        $result = Convert-BookmarkHtmlToMarkdown -Path $script:SamplePath -OutputDirectory $script:OutDir -Passthru
+        $result = Convert-BookmarkHtmlToMarkdown -Path $script:SamplePath -OutputDirectory $script:OutDir -Passthru -SaveFavicon
 
         $result | Should -Not -BeNullOrEmpty
         $result.Count | Should -Be 1

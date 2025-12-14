@@ -1,5 +1,7 @@
 {
   "Path": "C:\\Users\\you\\Downloads\\bookmarks.html",
   "OutputDirectory": "C:\\Users\\you\\Documents\\Obsidian\\Inbox",
-  "Passthru": true
+  "Passthru": true,
+  "CheckLinkStatus": true,
+  "SaveFavicon": true
 }

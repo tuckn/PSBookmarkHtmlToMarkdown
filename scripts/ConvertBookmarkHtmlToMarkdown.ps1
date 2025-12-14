@@ -7,6 +7,10 @@ param(
 
     [switch] $Passthru,
 
+    [switch] $CheckLinkStatus,
+
+    [switch] $SaveFavicon,
+
     [ValidateNotNullOrEmpty()]
     [string] $ConfigJsonPath
 )
@@ -16,7 +20,7 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module (Join-Path $PSScriptRoot '..\PSBookmarkHtmlToMarkdown.psd1') -Force -ErrorAction Stop
 
-$parameterOrder = @('Path','OutputDirectory','Passthru')
+$parameterOrder = @('Path','OutputDirectory','Passthru','CheckLinkStatus','SaveFavicon')
 $configParameters = @{}
 
 if ($PSBoundParameters.ContainsKey('ConfigJsonPath')) {
@@ -56,6 +60,12 @@ if ($effective.ContainsKey('OutputDirectory')) {
 }
 if ($effective.ContainsKey('Passthru') -and [bool]$effective['Passthru']) {
     $callParams['Passthru'] = $true
+}
+if ($effective.ContainsKey('CheckLinkStatus') -and [bool]$effective['CheckLinkStatus']) {
+    $callParams['CheckLinkStatus'] = $true
+}
+if ($effective.ContainsKey('SaveFavicon') -and [bool]$effective['SaveFavicon']) {
+    $callParams['SaveFavicon'] = $true
 }
 
 $control = @{}

@@ -38,6 +38,8 @@ so that I will export the bookmarks from my browser as Markdown and import them 
 |-------------|-----------------|-----|---------|-------|
 | `-Path`     | string          | ✓   | --      | HTML file path; resolved via `Resolve-Path` |
 | `-OutputDirectory` | string      | —   | —       | 変換後の.mdを出力するパス |
+| `-CheckLinkStatus`      | switch        | —   | false   | trueでリンク死活状態を確認 |
+| `-SaveFavicon`   | switch        | —   | false   | trueでbase64 ICONをPNGに書き出し、Frontmatterのfaviconを設定 |
 | `-Passthru`      | switch        | —   | false   | Emits objects |
 
 ### 4.2 Wrapper CLI
@@ -134,6 +136,7 @@ noteId: "c1f83755-1ff2-4bea-8bbc-a6af68e33e4e"
   - **MUST** ブックマークHTML内の`H3`タグも解析し、階層構造の名前をFrontmatterの`keywords`として登録する。この時、Obsidianのノートリンクとして、`"[[<keyword>]]"`のように、`"`と`[[]]`で囲む。なお、`PERSONAL_TOOLBAR_FOLDER`が`true`でいるノードは対象にしない。
   - **MUST** ブックマークHTML内の`TAGS`がある場合、`,`区切りのキーワードとして扱う。キーワードの重複があれば排除する。
   - **MUST** ブックマークHTML内の`ADD_DATE`を出力するFrontmatterの`date`として出力。`LAST_MODIFIED`を`updated`に出力する。HTML内の表記はエポック秒であると思われる。これを、UTCと解釈し、`yyyy-MM-ddThh:mm:ss+09:00`（日本時間）に変換する。`LAST_MODIFIED`の定義かない場合、`updated`は`ADD_DATE`と同じにする。`ADD_DATE`の定義がない場合、空白とする。例' `date: `
+  - **MUST** Frontmatter内の`domain`は、ホスト名は含めない。例えば、例えば、`http://list2.auctions.yahoo.co.jp/jp/20.....`の場合、`yahoo.co.jp`が`domain`となる。
   - **MUST** Frontmatter内の`noteId`は、GUID値を生成し、すべて小文字で設定する。
   - **MUST** Frontmatterを閉じる `---` とMarkdown本文の間に1行の空行を挿入する。
 
@@ -142,8 +145,8 @@ noteId: "c1f83755-1ff2-4bea-8bbc-a6af68e33e4e"
   - **MUST** プロバティ`favicon`は、`ICON`の定義かない場合は空欄とし、ある場合は、`favicon: "icons/<file name>.png"`とする。
 
 - **ファイル出力**
-  - **MUST** 作成するファイル名は、Frontmatterのプロバティである`date`、`domain`、`title`を`_`で繋げたものを適用する。ファイル名に使用できない文字は削除する。すでに同名のファイルが保存先のフォルダに存在する場合は、上書きせずファイル名の後ろに`_1`のような連番を付けて対応する。+1ずづ増加。
-  - **MUST** ファイル名が拡張子を含まずに50文字を超える場合、後続を`…`と省略して記載する。
+  - **MUST** 作成するファイル名は、Frontmatterのプロバティである`date`、`domain`、`title`を`_`で繋げたものを適用する。ファイル名に使用できない文字は削除する。さらにサロゲートペア（絵文字など）も除去する。すでに同名のファイルが保存先のフォルダに存在する場合は、上書きせずファイル名の後ろに`_1`のような連番を付けて対応する。+1ずづ増加。
+  - **MUST** ファイル名が拡張子を含まずに100文字を超える場合、後続を`…`と省略して記載する。
   - **MUST** `-OutputDirectory`の指定がない場合、Inputの.htmlと同じ場所に出力する
   - **MUST** .mdのファイルエンコーディグは、UTF-8 LFでBOMは無し。
 

@@ -11,14 +11,15 @@
     CompatiblePSEditions = @('Desktop')
     NestedModules        = @(
         'modules/ConvertBookmarkHtmlToMarkdown.psm1'
+        'modules/RemoveBookmarkDuplicates.psm1'
     )
-    FunctionsToExport    = @('Convert-BookmarkHtmlToMarkdown')
+    FunctionsToExport    = @('Convert-BookmarkHtmlToMarkdown','Remove-BookmarkDuplicates')
     CmdletsToExport      = @()
     AliasesToExport      = @()
     VariablesToExport    = @()
     PrivateData          = @{
         PSData = @{
-            Tags       = @('bookmarks','markdown','obsidian','frontmatter','favicon','powershell-module')
+            Tags       = @('bookmarks','markdown','obsidian','frontmatter','favicon','dedupe','powershell-module')
             ProjectUri = 'https://github.com/tuckn/PSBookmarkHtmlToMarkdown'
             LicenseUri = 'https://github.com/tuckn/PSBookmarkHtmlToMarkdown/blob/main/LICENSE'
         }

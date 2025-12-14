@@ -110,7 +110,7 @@ keywords:
 cliptool: "HTML exported from a browser" # 固定
 space: "personal" # 固定
 status: "inbox" # 固定
-type: "literature" # 固定
+type: "bookmark" # 固定
 date: "2022-10-02T15:56:15+09:00"
 updated: "2022-10-02T15:56:15+09:00"
 noteId: "c1f83755-1ff2-4bea-8bbc-a6af68e33e4e"

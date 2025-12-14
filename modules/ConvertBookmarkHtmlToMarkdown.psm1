@@ -128,11 +128,16 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
     function Sanitize-FileComponent {
         param([string] $Text)
         if ($null -eq $Text) { return '' }
+        # remove invalid filename characters and control chars
         $clean = $Text -replace '[<>:"/\\|?*\r\n\t]', ''
+        $clean = [regex]::Replace($clean, '[\x00-\x1F]', '')
         # drop surrogate pairs (emoji etc.)
         $clean = [regex]::Replace($clean, '[\uD800-\uDFFF]', '')
-        $clean = $clean -replace '\s+', ' '
-        $clean = $clean.Trim(' .')
+        # collapse whitespace (any Unicode space)
+        $clean = [regex]::Replace($clean, '\s+', ' ')
+        # trim trailing/leading spaces and dots (including Unicode spaces)
+        $clean = $clean.Trim()
+        $clean = $clean.Trim('.')
         return $clean
     }
 
@@ -157,6 +162,21 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
         if ($null -eq $BaseName) { return '' }
         if ($BaseName.Length -le 100) { return $BaseName }
         return ($BaseName.Substring(0, 99) + '…')
+    }
+
+    function Limit-FullPath {
+        param(
+            [string] $Directory,
+            [string] $BaseName,
+            [string] $Extension,
+            [int] $MaxLength = 240
+        )
+
+        $available = $MaxLength - ($Directory.Length + 1 + $Extension.Length)
+        if ($available -lt 1) { return 'file' }
+        if ($BaseName.Length -le $available) { return $BaseName }
+        if ($available -lt 2) { return 'f' }
+        return ($BaseName.Substring(0, $available - 1) + '…')
     }
 
     function Ensure-Directory {
@@ -483,6 +503,9 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
         $baseParts += (Sanitize-FileComponent -Text $bm.Title)
         $baseJoined = ($baseParts -join '_')
         $baseJoined = Truncate-BaseName -BaseName $baseJoined
+        if ([string]::IsNullOrWhiteSpace($baseJoined)) { $baseJoined = 'untitled' }
+
+        $baseJoined = Limit-FullPath -Directory $targetDirectory -BaseName $baseJoined -Extension '.md' -MaxLength 240
 
         $fileName = Build-UniqueName -Directory $targetDirectory -BaseName $baseJoined -Extension '.md'
         $markdownPath = Join-Path $targetDirectory $fileName

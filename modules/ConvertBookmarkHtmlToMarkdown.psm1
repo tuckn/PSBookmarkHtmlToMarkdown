@@ -78,7 +78,7 @@ Processes the given bookmarks export and writes Markdown + favicons into .\out, 
         if (-not [long]::TryParse($UnixSeconds, [ref]$sec)) { return '' }
 
         $dto = [DateTimeOffset]::FromUnixTimeSeconds($sec).ToOffset([TimeSpan]::FromHours(9))
-        return $dto.ToString('yyyy-MM-ddTHH:mm:sszzz').Replace(':', '', 1).Replace(':', '', 1) # -> +0900
+        return $dto.ToString('yyyy-MM-ddTHH:mm:sszzz')
     }
 
     function Get-DomainFromUrl {
